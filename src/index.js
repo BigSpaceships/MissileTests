@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { clamp } from './lib';
 
 import css from "./style.css"
 import PlaneTexture from "./textures/planeTexture.png"
@@ -114,6 +115,9 @@ function animate() {
   if (pitchChange != 0 || rotChange != 0) {
     pitch += pitchChange;
     rot += rotChange;
+
+    pitch = clamp(pitch, -Math.PI / 2, Math.PI / 2);
+    // rot = clamp(rot, -Math.PI / 2, Math.PI / 2);
 
     updateCameraPosition();
     
