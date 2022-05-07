@@ -3,3 +3,28 @@ html, body {
   position: fixed;
   overflow: hidden;
 }
+
+div.bar-content {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  
+  display: flex;
+  justify-content: center;
+}
+
+.bar {
+  background: white;
+  border: 2px solid black;
+  margin: 0px;
+  padding: 0px;
+}
+
+.bar > * {
+  margin: 0px;
+  background: red;
+}
+
+/* .bar > *:not(:last-child) {
+  border-right: 2px solid black;
+}*/

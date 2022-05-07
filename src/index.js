@@ -63,7 +63,7 @@ function init() {
 
   updateCameraPosition();
 
-  window.onmousemove = function(e) {
+  renderer.domElement.onmousemove = function(e) {
     const buttons = e.buttons.toString(2);
 
     if (buttons.charAt(buttons.length - 1) == 1) { 
@@ -73,7 +73,7 @@ function init() {
     }
   }
 
-  document.body.addEventListener("touchstart", e => {
+  renderer.domElement.addEventListener("touchstart", e => {
     const touch = e.changedTouches[0];
     
     lastTouchX = touch.clientX;
@@ -81,7 +81,7 @@ function init() {
     e.preventDefault();
   });
 
-  document.body.addEventListener("touchmove", e => {
+  renderer.domElement.addEventListener("touchmove", e => {
     const touch = e.changedTouches[0];
     
     rotChange -= (lastTouchX - touch.clientX) * sensitivity / Math.PI / 300;

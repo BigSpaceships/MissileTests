@@ -13,6 +13,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Missile Tests',
+      template: "src/index.html",
     }),
   ],
   output: {
@@ -34,6 +35,10 @@ module.exports = {
         test: /\.gltf$/i,
         type: 'asset/resource',
       },
+      {
+        test: /\.html$/,
+        loader: "html-loader",
+      }
     ],
   },
   optimization: {
