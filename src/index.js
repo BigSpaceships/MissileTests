@@ -1,18 +1,25 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clamp } from './lib';
+import { Missile } from './missile.js';
+// import { playPause } from './buttons.js';
 
-import css from "./style.css"
 import PlaneTexture from "./textures/planeTexture.png"
 import TaterMissile from "./models/tatermissile.gltf";
+import { Euler, Vector3 } from 'three';
+import css from './style.css'
 
-let scene, camera, renderer, missile, rotChange, pitchChange, pitch, rot, lastTouchX, lastTouchY;
+let scene, camera, renderer, missile, rotChange, pitchChange, pitch, rot, lastTouchX, lastTouchY, taterModel;
+
+let frame = 0;
+
 const cameraDist = 5;
 
 function init() {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+  
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
@@ -22,13 +29,12 @@ function init() {
   const loader = new GLTFLoader();
 
   loader.load(TaterMissile, function(gltf) {
-    missile = gltf.scene;
-
-    missile.position.set(0, 0, 0);
-    scene.add(missile);
-
-    missile.add(camera);
+    taterModel = gltf.scene;
     
+    missile = new Missile(new Vector3(0, 0, 0), new Euler(), new Vector3(0, 0, 0), new Vector3(30, 0, 30), 40, taterModel);
+
+    scene.add(missile.object)
+    scene.add(camera)
   })
 
   // lights
@@ -96,36 +102,54 @@ function init() {
 }
 
 function updateCameraPosition() {
+  const missilePos =  missile === undefined ? new Vector3(0, 0, 0) : missile.object.position.clone();
+  
   const verticalDist = Math.sin(pitch) * cameraDist;
   const horizontalDist = Math.cos(pitch) * cameraDist;
 
   const xPosRelative = Math.sin(rot) * horizontalDist;
   const zPosRelative = Math.cos(rot) * horizontalDist;
-  
-  camera.position.set(xPosRelative, verticalDist, zPosRelative);
 
-  const posToLookAt = missile === undefined ? new THREE.Vector3(0, 0, 0) : missile.position.clone();
-    
-  camera.lookAt(posToLookAt.add(new THREE.Vector3(0, 1, 0)));
+  const posRelative = new Vector3(xPosRelative, verticalDist, zPosRelative)
+
+  posRelative.add(missilePos)
+  
+  camera.position.copy(posRelative);
+  
+  camera.lookAt(missilePos.add(new Vector3(0, 1, 0)));
+
+  if (pitch == Math.PI / 2) {
+    camera.rotateOnWorldAxis(new Vector3(0, 1, 0), rot)
+  }
 }
 
 function animate() {
   requestAnimationFrame(animate);
 
-  if (pitchChange != 0 || rotChange != 0) {
-    pitch += pitchChange;
-    rot += rotChange;
+  try {
+    if (pitchChange != 0 || rotChange != 0) {
+      pitch += pitchChange;
+      rot += rotChange;
 
-    pitch = clamp(pitch, -Math.PI / 2, Math.PI / 2);
-    // rot = clamp(rot, -Math.PI / 2, Math.PI / 2);
+      pitch = clamp(pitch, -Math.PI / 2, Math.PI / 2);
+    
+      pitchChange = 0;
+      rotChange = 0;
+    }
+    if (missile !== undefined) {
+      missile.tick()
+      // alert(missile.object.position)
+    }
 
     updateCameraPosition();
     
-    pitchChange = 0;
-    rotChange = 0;
-  }
   
-  renderer.render(scene, camera);
+    renderer.render(scene, camera);
+
+    frame++;
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 init();
